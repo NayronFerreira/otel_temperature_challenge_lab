@@ -7,9 +7,9 @@ import (
 	"github.com/go-chi/chi/middleware"
 )
 
-func ValidationCEPRoute(config config.Config) *chi.Mux {
+func CEPValidator(config config.Config) *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
-	router.Get("/{cep}", api.NewAPI(config).GetTemperatureTypesByCEP)
+	router.Post("/", api.NewAPI(config).ValidatorCEP)
 	return router
 }

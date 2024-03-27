@@ -8,8 +8,10 @@ import (
 )
 
 func InitializeRoutes(config config.Config) {
-	// http.ListenAndServe(config.WebValidationCEPServerPort, ValidationCEPRoute(config))
-	// fmt.Println("Server running on port", config.WebValidationCEPServerPort)
+
+	go http.ListenAndServe(config.WebValidationCEPServerPort, CEPValidator(config))
+	fmt.Println("Server running on port", config.WebValidationCEPServerPort)
+
 	http.ListenAndServe(config.WebTemperatureServerPort, TemperatureRoute(config))
 	fmt.Println("Server running on port", config.WebTemperatureServerPort)
 }
