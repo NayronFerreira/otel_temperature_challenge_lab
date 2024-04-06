@@ -12,13 +12,19 @@ func (a API) GetTemperatureTypesByCEP(w http.ResponseWriter, r *http.Request) {
 
 	cep := chi.URLParam(r, "cep")
 
-	locality, UF, err := a.GetLocationByCEP(cep)
-	if err != nil {
-
+	//Chamada Servico A
+	if err := a.isValidCEP(cep); err != nil {
 		if err.Error() == "invalid zipcode" {
 			http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 			return
 		}
+
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	locality, UF, err := a.GetLocationByCEP(cep)
+	if err != nil {
 
 		if err.Error() == "can not find zipcode" {
 			http.Error(w, err.Error(), http.StatusNotFound)

@@ -2,18 +2,14 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
+	model "github.com/NayronFerreira/otel_temperature_challenge_lab/model/request"
 	service "github.com/NayronFerreira/otel_temperature_challenge_lab/service/cep_validator"
 )
 
-type Request struct {
-	CEP string `json:"cep"`
-}
-
 func (a API) ValidatorCEP(w http.ResponseWriter, r *http.Request) {
-	var req Request
+	var req model.ValidatorCEPReq
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Error decoding request body", http.StatusBadRequest)
@@ -25,5 +21,13 @@ func (a API) ValidatorCEP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "CEP %s is valid", req.CEP)
+	jsonBody, err := json.Marshal(req)
+	if err != nil {
+		http.Error(w, "Error encoding response body", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonBody)
 }
