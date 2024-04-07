@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	model "github.com/NayronFerreira/otel_temperature_challenge_lab/model/response"
+	model "github.com/NayronFerreira/otel_temperature_challenge_lab/internal/model/response"
 )
 
 func (a API) GetCelciusByLocality(city, state string) (celcius float64, err error) {

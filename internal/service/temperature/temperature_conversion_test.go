@@ -3,7 +3,7 @@ package service
 import (
 	"testing"
 
-	"github.com/NayronFerreira/otel_temperature_challenge_lab/model/entity"
+	"github.com/NayronFerreira/otel_temperature_challenge_lab/internal/model/entity"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -1,6 +1,6 @@
 package service
 
-import "github.com/NayronFerreira/otel_temperature_challenge_lab/model/entity"
+import "github.com/NayronFerreira/otel_temperature_challenge_lab/internal/model/entity"
 
 func GenerateTemperatureTypesByCelcius(celsiusTemperature float64) entity.TemperatureTypes {
 	return entity.TemperatureTypes{

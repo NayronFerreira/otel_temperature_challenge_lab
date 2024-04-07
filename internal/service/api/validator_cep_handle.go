@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	model "github.com/NayronFerreira/otel_temperature_challenge_lab/model/request"
-	service "github.com/NayronFerreira/otel_temperature_challenge_lab/service/cep_validator"
+	model "github.com/NayronFerreira/otel_temperature_challenge_lab/internal/model/request"
+	service "github.com/NayronFerreira/otel_temperature_challenge_lab/internal/service/cep_validator"
 )
 
 func (a API) ValidatorCEP(w http.ResponseWriter, r *http.Request) {

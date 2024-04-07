@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	model "github.com/NayronFerreira/otel_temperature_challenge_lab/model/response"
+	model "github.com/NayronFerreira/otel_temperature_challenge_lab/internal/model/response"
 )
 
 func (a API) GetLocationByCEP(cep string) (locality, UF string, err error) {

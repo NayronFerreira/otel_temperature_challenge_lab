@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	service "github.com/NayronFerreira/otel_temperature_challenge_lab/service/temperature"
+	service "github.com/NayronFerreira/otel_temperature_challenge_lab/internal/service/temperature"
 	"github.com/go-chi/chi"
 )
 

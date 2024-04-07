@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/NayronFerreira/otel_temperature_challenge_lab/config"
-	"github.com/NayronFerreira/otel_temperature_challenge_lab/web"
+	"github.com/NayronFerreira/otel_temperature_challenge_lab/internal/web"
 )
 
 func main() {
