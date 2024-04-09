@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/NayronFerreira/otel_temperature_challenge_lab/config"
@@ -18,59 +21,81 @@ import (
 )
 
 func main() {
-
 	config, err := config.LoadConfig(".")
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(config)
 
-	web.InitializeRoutes(config)
-
-}
-
-func initProvider(serviceName, urlCollector string) (func(context.Context) error, error) {
-
-	ctx := context.Background()
-
-	resource, err := resource.New(ctx,
-		resource.WithAttributes(
-			semconv.ServiceNameKey.String(serviceName),
-		),
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	conn, err := grpc.DialContext(
-		ctx,
-		urlCollector,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
-	)
+	shutdown, err := initProvider(ctx, config.ServiceName, config.CollectorURL)
+	if err != nil {
+		log.Fatalf("Failed to initialize OpenTelemetry: %v", err)
+	}
 
+	defer func() {
+		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
+		if err := shutdown(ctx); err != nil {
+			log.Fatalf("Failed to shutdown OpenTelemetry: %v", err)
+		}
+	}()
+
+	web.InitializeRoutes(config)
+}
+
+func initProvider(ctx context.Context, serviceName, urlCollector string) (func(context.Context) error, error) {
+	resource, err := createResource(ctx, serviceName)
 	if err != nil {
 		return nil, err
 	}
 
-	traceExporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(conn))
+	conn, err := createGRPCConn(ctx, urlCollector)
 	if err != nil {
 		return nil, err
 	}
 
-	bsp := sdktrace.NewBatchSpanProcessor(traceExporter)
-	traceProvider := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithResource(resource),
-		sdktrace.WithSpanProcessor(bsp),
-	)
+	traceExporter, err := createTraceExporter(ctx, conn)
+	if err != nil {
+		return nil, err
+	}
+
+	traceProvider := createTraceProvider(resource, traceExporter)
 
 	otel.SetTracerProvider(traceProvider)
 	otel.SetTextMapPropagator(propagation.TraceContext{})
 
 	return traceProvider.Shutdown, nil
 }
+
+func createResource(ctx context.Context, serviceName string) (*resource.Resource, error) {
+	return resource.New(ctx, resource.WithAttributes(semconv.ServiceNameKey.String(serviceName)))
+}
+
+func createGRPCConn(ctx context.Context, urlCollector string) (*grpc.ClientConn, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	return grpc.DialContext(
+		ctx,
+		urlCollector,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithBlock(),
+	)
+}
+
+func createTraceExporter(ctx context.Context, conn *grpc.ClientConn) (*otlptracegrpc.Exporter, error) {
+	return otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(conn))
+}
+
+func createTraceProvider(resource *resource.Resource, traceExporter *otlptracegrpc.Exporter) *sdktrace.TracerProvider {
+	bsp := sdktrace.NewBatchSpanProcessor(traceExporter)
+	return sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithResource(resource),
+		sdktrace.WithSpanProcessor(bsp),
+	)
+}
+ß

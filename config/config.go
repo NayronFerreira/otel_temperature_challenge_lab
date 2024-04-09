@@ -9,6 +9,8 @@ type Config struct {
 	WeatherHost                string `mapstructure:"WEATHER_HOST_API"`
 	WeatherKey                 string `mapstructure:"WEATHER_API_KEY"`
 	TimeoutSeconds             string `mapstructure:"TIMEOUT_SECONDS"`
+	ServiceName                string `mapstructure:"SERVICE_NAME"`
+	CollectorURL               string `mapstructure:"COLLECTOR_URL"`
 }
 
 func LoadConfig(path string) (Config, error) {
