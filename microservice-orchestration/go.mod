@@ -3,6 +3,7 @@ module github.com/NayronFerreira/microservice-orchestration
 go 1.22.0
 
 require (
+	github.com/goccy/go-json v0.10.2
 	github.com/spf13/viper v1.18.2
 	go.opentelemetry.io/otel v1.25.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.25.0
