@@ -3,6 +3,8 @@ module github.com/NayronFerreira/microservice-orchestration
 go 1.22.0
 
 require (
+	github.com/go-chi/chi/v5 v5.0.12
+	github.com/go-chi/cors v1.2.1
 	github.com/goccy/go-json v0.10.2
 	github.com/spf13/viper v1.18.2
 	go.opentelemetry.io/otel v1.25.0

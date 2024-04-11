@@ -28,7 +28,7 @@ func InitializeOpenTelemetry() (func(ctx context.Context) error, error) {
 		return nil, fmt.Errorf("failed to create resource: %w", err)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	collectorConnection, err := grpc.DialContext(

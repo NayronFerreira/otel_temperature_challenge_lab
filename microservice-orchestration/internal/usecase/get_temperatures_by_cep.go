@@ -45,5 +45,4 @@ func (u *GetTemperaturesUseCase) Execute(ctx context.Context, cep string) (retVa
 	}
 
 	return retVal, nil
-
 }

@@ -1,7 +1,41 @@
 version: '3'
 
 services:
-  server:
-    build: .
+  microservice-input:
+    image: microservice-input
+    restart: always
+    build:
+      context: ./microservice-input
+      dockerfile: Dockerfile
     ports:
       - "8181:8181"
+    depends_on:
+      - otel-collector
+      - zipkin-all-in-one
+  
+  microservice-orchestration:
+    image: microservice-orchestration
+    restart: always
+    build:
+      context: ./microservice-orchestration
+      dockerfile: Dockerfile
+    ports:
+      - "9191:9191"
+    depends_on:
+      - otel-collector
+      - zipkin-all-in-one
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    restart: always
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./.docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"
+
+  zipkin-all-in-one:
+    image: openzipkin/zipkin:latest
+    restart: always
+    ports:
+      - "9411:9411"

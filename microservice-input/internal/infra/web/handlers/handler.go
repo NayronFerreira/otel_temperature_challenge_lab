@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"regexp"
 
 	"github.com/NayronFerreira/microservice-input/internal/exceptions"
 	"github.com/NayronFerreira/microservice-input/internal/model/dto"
@@ -48,7 +47,7 @@ func (h *Handler) GetTemperatures(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !h.isValidCEP(input.Cep) {
+	if !utils.IsValidCEP(input.Cep) {
 		utils.JsonResponse(w, dto.ResponseDTO{
 			StatusCode: http.StatusUnprocessableEntity,
 			Message:    exceptions.ErrInvalidCEP.Error(),
@@ -92,18 +91,4 @@ func (h *Handler) GetTemperatures(w http.ResponseWriter, r *http.Request) {
 		Success:    true,
 		Data:       data,
 	})
-}
-
-func (h *Handler) isValidCEP(cep string) bool {
-	regex := regexp.MustCompile(`^\d{8}$`)
-
-	if len(cep) != 8 {
-		return false
-	}
-
-	if !regex.MatchString(cep) {
-		return false
-	}
-
-	return true
 }
