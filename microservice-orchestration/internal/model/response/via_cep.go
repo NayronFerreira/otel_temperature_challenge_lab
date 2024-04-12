@@ -1,7 +1,7 @@
 package response
 
 type ViaCEPResponse struct {
-	Erro        string `json:"erro"`
+	Erro        bool   `json:"erro"`
 	Cep         string `json:"cep"`
 	Logradouro  string `json:"logradouro"`
 	Complemento string `json:"complemento"`

@@ -47,6 +47,15 @@ func (h *Handler) GetTemperatures(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if input.Cep == "" {
+		utils.JsonResponse(w, dto.ResponseDTO{
+			StatusCode: http.StatusBadRequest,
+			Message:    exceptions.ErrEmptyCEP.Error(),
+			Success:    false,
+		})
+		return
+	}
+
 	if !utils.IsValidCEP(input.Cep) {
 		utils.JsonResponse(w, dto.ResponseDTO{
 			StatusCode: http.StatusUnprocessableEntity,

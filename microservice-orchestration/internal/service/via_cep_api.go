@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -21,7 +22,11 @@ type ViaCepService struct {
 }
 
 func NewViaCepService() *ViaCepService {
-	return &ViaCepService{client: &http.Client{}}
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+	return &ViaCepService{client: client}
 }
 
 func (s *ViaCepService) GetCEPData(ctx context.Context, cep string) (retVal *response.ViaCEPResponse, err error) {
@@ -49,7 +54,7 @@ func (s *ViaCepService) GetCEPData(ctx context.Context, cep string) (retVal *res
 		return retVal, err
 	}
 
-	if retVal.Erro == "true" {
+	if retVal.Erro {
 		return retVal, exceptions.ErrCannotFindZipcode
 	}
 
