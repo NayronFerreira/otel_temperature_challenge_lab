@@ -4,16 +4,19 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/NayronFerreira/microservice-ratelimiter/config"
 	limiter "github.com/NayronFerreira/microservice-ratelimiter/ratelimiter"
 )
 
-func RateLimitMiddleware(next http.Handler, rateLimiter *limiter.RateLimiter) http.Handler {
+func RateLimitMiddleware(next http.Handler, rateLimiter *limiter.RateLimiter, cfg *config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		ctx := r.Context()
 		token := r.Header.Get("API_KEY")
 
 		if token != "" && rateLimiter.TokenExists(token) {
 
-			isBlocked, err := rateLimiter.CheckRateLimitForKey(r.Context(), token, true)
+			isBlocked, err := rateLimiter.CheckRateLimitForKey(ctx, token, true)
 			if err != nil {
 				http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 				return
@@ -27,7 +30,7 @@ func RateLimitMiddleware(next http.Handler, rateLimiter *limiter.RateLimiter) ht
 		} else {
 
 			ip := strings.Split(r.RemoteAddr, ":")[0]
-			isBlocked, err := rateLimiter.CheckRateLimitForKey(r.Context(), ip, false)
+			isBlocked, err := rateLimiter.CheckRateLimitForKey(ctx, ip, false)
 			if err != nil {
 				http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 				return

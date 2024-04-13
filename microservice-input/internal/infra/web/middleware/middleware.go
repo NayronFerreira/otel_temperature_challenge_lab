@@ -7,7 +7,14 @@ import (
 
 func RateLimitMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp, err := http.Get("http://microservice-ratelimiter:8080/check")
+
+		req, err := http.NewRequestWithContext(r.Context(), "GET", "http://microservice-ratelimiter:8080/check", nil)
+		if err != nil {
+			http.Error(w, "Error creating request to rate limiter:"+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			http.Error(w, "Error contacting rate limiter:"+err.Error(), http.StatusInternalServerError)
 			return

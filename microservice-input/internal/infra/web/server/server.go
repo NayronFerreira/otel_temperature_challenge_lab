@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	md "github.com/NayronFerreira/microservice-input/internal/infra/web/middleware"
+	midd "github.com/NayronFerreira/microservice-input/internal/infra/web/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -35,7 +35,7 @@ func (s *WebServer) MountMiddlewares() {
 	s.Router.Use(middleware.Logger)
 	s.Router.Use(middleware.Recoverer)
 	s.Router.Use(middleware.AllowContentType("application/json"))
-	s.Router.Use(md.RateLimitMiddleware)
+	s.Router.Use(midd.RateLimitMiddleware)
 	s.Router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"}, // Use this to allow specific origin hosts
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},

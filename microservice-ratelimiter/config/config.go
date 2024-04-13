@@ -15,6 +15,8 @@ type Config struct {
 	BlockDurationSeconds      int
 	WebPort                   string
 	RedisURL                  string
+	ServiceName               string
+	OtelCollectorURL          string
 }
 
 func LoadConfig() (*Config, error) {
@@ -35,6 +37,8 @@ func LoadConfig() (*Config, error) {
 		BlockDurationSeconds: getEnvAsInt("BLOCK_DURATION_SECONDS"),
 		WebPort:              os.Getenv("APP_WEB_PORT"),
 		RedisURL:             os.Getenv("REDIS_URL"),
+		ServiceName:          os.Getenv("SERVICE_NAME"),
+		OtelCollectorURL:     os.Getenv("OTEL_COLLECTOR_URL"),
 	}
 
 	return config, nil
