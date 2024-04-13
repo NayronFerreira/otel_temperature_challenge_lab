@@ -12,6 +12,8 @@ services:
     depends_on:
       - otel-collector
       - zipkin-all-in-one
+    networks:
+      - app_net
   
   microservice-orchestration:
     image: microservice-orchestration
@@ -24,6 +26,23 @@ services:
     depends_on:
       - otel-collector
       - zipkin-all-in-one
+    networks:
+      - app_net
+
+  microservice-ratelimiter:
+    image: microservice-ratelimiter
+    restart: always
+    build:
+      context: ./microservice-ratelimiter
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis:6379
+    networks:
+      - app_net
 
   otel-collector:
     image: otel/opentelemetry-collector:latest
@@ -33,9 +52,26 @@ services:
       - ./.docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
       - "4317:4317"
+    networks:
+      - app_net
+
 
   zipkin-all-in-one:
     image: openzipkin/zipkin:latest
     restart: always
     ports:
       - "9411:9411"
+    networks:
+      - app_net
+
+  redis:
+    image: "redis:6.2.5"
+    ports:
+      - "6379:6379"
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    name: app_net
+    driver: bridge
