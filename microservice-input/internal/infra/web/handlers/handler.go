@@ -34,7 +34,7 @@ func (h *Handler) GetTemperatures(w http.ResponseWriter, r *http.Request) {
 	ctx := otel.GetTextMapPropagator().Extract(r.Context(), carrier)
 	tracer := otel.Tracer(viper.GetString("SERVICE_NAME"))
 
-	ctx, span := tracer.Start(ctx, "GetTemperaturesHandler")
+	ctx, span := tracer.Start(ctx, "get-temperatures-handler")
 	defer span.End()
 
 	var input InputDTO
