@@ -19,8 +19,8 @@ func RateLimitMiddleware(next http.Handler, rateLimiter *limiter.RateLimiter, cf
 
 		ctx, span := tracer.Start(ctx, "check-ratelimit")
 		defer span.End()
-		token := r.Header.Get("API_KEY")
 
+		token := r.Header.Get("API_KEY")
 		if token != "" && rateLimiter.TokenExists(token) {
 
 			isBlocked, err := rateLimiter.CheckRateLimitForKey(ctx, token, true)

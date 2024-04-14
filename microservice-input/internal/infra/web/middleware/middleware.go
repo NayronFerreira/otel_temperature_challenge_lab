@@ -25,6 +25,10 @@ func RateLimitMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		if r.Header.Get("API_KEY") != "" {
+			req.Header.Set("API_KEY", r.Header.Get("API_KEY"))
+		}
+
 		otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 
 		resp, err := http.DefaultClient.Do(req)

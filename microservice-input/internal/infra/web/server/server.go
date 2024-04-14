@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type WebServer struct {
@@ -44,6 +45,7 @@ func (s *WebServer) MountMiddlewares() {
 		AllowCredentials: false,
 		MaxAge:           300, // 5 minutes
 	}))
+	s.Router.Handle("/metrics", promhttp.Handler())
 }
 
 func (s *WebServer) Start() {

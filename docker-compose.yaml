@@ -12,6 +12,8 @@ services:
     depends_on:
       - otel-collector
       - zipkin-all-in-one
+      # - jaeger-all-in-one
+      - prometheus
     networks:
       - app_net
   
@@ -26,6 +28,8 @@ services:
     depends_on:
       - otel-collector
       - zipkin-all-in-one
+      # - jaeger-all-in-one
+      - prometheus
     networks:
       - app_net
 
@@ -39,6 +43,10 @@ services:
       - "8080:8080"
     depends_on:
       - redis
+      - prometheus
+      - otel-collector
+      - zipkin-all-in-one
+      # - jaeger-all-in-one
     environment:
       - REDIS_URL=redis:6379
     networks:
@@ -51,10 +59,11 @@ services:
     volumes:
       - ./.docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
-      - "4317:4317"
+      - "8888:8888" # Prometheus Metrics exposed by the OTel Collector
+      - "8889:8889" # Prometheus exporter metrics
+      - "4317:4317" # OTLP gRPC receiver
     networks:
       - app_net
-
 
   zipkin-all-in-one:
     image: openzipkin/zipkin:latest
@@ -63,6 +72,37 @@ services:
       - "9411:9411"
     networks:
       - app_net
+
+  # jaeger-all-in-one:
+  #   image: jaegertracing/all-in-one:latest
+  #   restart: always
+  #   ports:
+  #     - "16686:16686"
+  #     - "14268"
+  #     - "14250"
+  #   networks:
+  #     - app_net
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./.docker/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - app_net
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - app_net
+    depends_on:
+      - prometheus
 
   redis:
     image: "redis:6.2.5"

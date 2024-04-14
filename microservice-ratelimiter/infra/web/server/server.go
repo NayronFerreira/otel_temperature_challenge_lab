@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/NayronFerreira/microservice-ratelimiter/config"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Server struct {
@@ -14,6 +15,7 @@ type Server struct {
 func NewServer(cfg *config.Config, handler http.Handler) *Server {
 	mux := http.NewServeMux()
 	mux.Handle("/check", handler)
+	mux.Handle("/metrics", promhttp.Handler()) // prometheus metrics
 
 	return &Server{
 		Server: http.Server{
