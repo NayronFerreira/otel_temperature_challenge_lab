@@ -6,12 +6,19 @@ import (
 
 	"github.com/NayronFerreira/microservice-ratelimiter/config"
 	limiter "github.com/NayronFerreira/microservice-ratelimiter/ratelimiter"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 func RateLimitMiddleware(next http.Handler, rateLimiter *limiter.RateLimiter, cfg *config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		ctx := r.Context()
+		carrier := propagation.HeaderCarrier(r.Header)
+		ctx := otel.GetTextMapPropagator().Extract(r.Context(), carrier)
+		tracer := otel.Tracer("microservice-ratelimiter")
+
+		ctx, span := tracer.Start(ctx, "check-ratelimit")
+		defer span.End()
 		token := r.Header.Get("API_KEY")
 
 		if token != "" && rateLimiter.TokenExists(token) {

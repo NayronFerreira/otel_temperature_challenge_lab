@@ -3,16 +3,29 @@ package middleware
 import (
 	"io"
 	"net/http"
+
+	"github.com/spf13/viper"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 func RateLimitMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		req, err := http.NewRequestWithContext(r.Context(), "GET", "http://microservice-ratelimiter:8080/check", nil)
+		carrier := propagation.HeaderCarrier(r.Header)
+		ctx := otel.GetTextMapPropagator().Extract(r.Context(), carrier)
+		tracer := otel.Tracer(viper.GetString("SERVICE_NAME"))
+
+		ctx, span := tracer.Start(ctx, "web-handler")
+		defer span.End()
+
+		req, err := http.NewRequestWithContext(ctx, "GET", "http://microservice-ratelimiter:8080/check", nil)
 		if err != nil {
 			http.Error(w, "Error creating request to rate limiter:"+err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
@@ -33,6 +46,6 @@ func RateLimitMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
