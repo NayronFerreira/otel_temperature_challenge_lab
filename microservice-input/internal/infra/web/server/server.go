@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
+	midd "github.com/NayronFerreira/microservice-input/internal/infra/web/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type WebServer struct {
@@ -34,6 +36,7 @@ func (s *WebServer) MountMiddlewares() {
 	s.Router.Use(middleware.Logger)
 	s.Router.Use(middleware.Recoverer)
 	s.Router.Use(middleware.AllowContentType("application/json"))
+	s.Router.Use(midd.RateLimitMiddleware)
 	s.Router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"}, // Use this to allow specific origin hosts
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -42,6 +45,7 @@ func (s *WebServer) MountMiddlewares() {
 		AllowCredentials: false,
 		MaxAge:           300, // 5 minutes
 	}))
+	s.Router.Handle("/metrics", promhttp.Handler())
 }
 
 func (s *WebServer) Start() {

@@ -34,7 +34,7 @@ func NewWeatherApiService() *WeatherApiService {
 
 func (s *WeatherApiService) GetWeatherData(ctx context.Context, location string) (retVal *WeatherAPIResponse, err error) {
 	tracer := otel.Tracer(viper.GetString("SERVICE_NAME"))
-	ctx, span := tracer.Start(ctx, "WeatherAPI.GetWeatherData")
+	ctx, span := tracer.Start(ctx, "weather-api.get-weather-data")
 	defer span.End()
 
 	WEATHER_API_KEY := viper.GetString("WEATHER_API_KEY")

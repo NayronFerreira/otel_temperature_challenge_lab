@@ -1,59 +1,71 @@
 ## Get Temperature By CEP LAB Challenge
 
-Esta é uma aplicação construída em Go que fornece informações meteorológicas com base em um CEP fornecido. Ela utiliza serviços de API externos para obter dados de localização e clima.
+Este projeto Microservices construído em Go fornece informações meteorológicas com base em um CEP fornecido. Ele utiliza serviços de APIs externas para obter dados de localização e clima e implementa um sofisticado sistema de rastreamento distribuído e monitoramento de métricas.
 
-## Estrutura do Projeto
+### Principais Tecnologias Utilizadas
 
-A aplicação é dividida em alguns pacotes, organizados da seguinte forma:
+- **Golang**: Linguagem de programação usada para construir os microservices.
+- **Docker/Docker Compose**: Usado para criar imagens dos serviços e gerenciar containers.
+- **OpenTelemetry**: Utilizado para capturar e exportar traces, métricas e logs.
+- **Prometheus e Grafana**: Usados para monitorar métricas e visualizar dados através de dashboards.
+- **Zipkin e Jaeger**: Ferramentas de visualização para traces distribuídos.
+- **Redis**: Banco de dados em memória utilizado pelo microservice de Rate Limiter.
 
-- **main.go**: Ponto de entrada da aplicação. Configura e inicia o servidor web.
+### Estrutura do Projeto
 
-- **config**: Carrega as configurações da aplicação a partir de variáveis de ambiente.
+- **Microservice-input**: Ponto inicial do fluxo, responsável por receber e validar o CEP.
+- **Microservice-orchestration**: Com o CEP validado, busca a localidade na API externa ViaCEP e temperatura na Weather API.
+- **Microservice-ratelimiter**: Limita a quantidade de requisições por segundo nos serviços input e orchestration, baseado em IP e Token personalizados.
 
-- **infra/**: Contém infraestruturas auxiliares, como o servidor web (web). Caso houvesse conexao com banco de dados, você poderia adicionar o pacote database.
+### Executando Localmente com Docker Compose
 
-- **web**: Inclui o servidor HTTP, middlewares e rotas.
+#### Pré-requisitos
 
-- **web/api**: Inclui as chamadas para APIs externas (ViaCEP e OpenWeatherMapMapper).
+- Docker: [Instruções de instalação](https://docs.docker.com/get-docker/)
+- Docker Compose: [Instruções de instalação](https://docs.docker.com/compose/install/)
 
-- **web/model**: Inclui modelos de response das API externas + entity retornaod pelo servidor web da aplicação .
+#### Instruções de Execução
 
-- **service**: Contém a logica de conversao das temepraturas.
+1. **Clone o repositório**:
+   ```bash
+   git clone https://github.com/NayronFerreira/otel_temperature_challenge_lab.git
 
-## Executando a Aplicação na Nuvem
 
-A aplicacao foi deployada no Cloud Run e voce pode acessá-la em:
+2. **Navegue até a pasta raiz do projeto**:
+   ```bash
+   cd otel_temperature_challenge_lab
+   ````
 
-[https://temperature-challenge-lab-3w3tcjirhq-uc.a.run.app/{CEP}]
+3. **Construa e inicie os containers:**:
+   ```bash
+   docker-compose up --build
+   ````
 
-Substitua {CEP} pelo CEP desejado.
+4. **Acesse a aplicação**:
+   A aplicação está configurada para receber requisições POST no seguinte endpoint:
+   ```bash
+   curl --location --request POST 'http://localhost:8181/' \
+   --header 'Content-Type: application/json' \
+   --data-raw '{
+       "cep": "06448190"
+   }'
+   ```
 
-Exemplos de CEP:
+Substitua "06448190" pelo CEP desejado. Exemplos de CEPs válidos:
 
-- São Paulo: 01001-000
-- Rio de Janeiro: 20000-000
-- Brasília: 70000-000
+São Paulo: 01001-000
+Rio de Janeiro: 20000-000
+Brasília: 70000-000
 
-## Executando Localmente com Docker Compose
+#### Visualizando Traces e Métricas
 
-Para rodar a aplicação localmente utilizando o Docker Compose, siga os passos abaixo:
+- **Zipkin**: Acessível em http://localhost:9411/, visualiza traces distribuídos coletados pelo OpenTelemetry.
+- **Jaeger**: Disponível em http://localhost:16686/, oferece uma interface rica para visualização e análise de traces.
+- **Grafana**: Configure a conexão com Prometheus e visualize dashboards em http://localhost:3000/. Dashboards podem ser configurados para mostrar métricas detalhadas dos serviços.
+- **Prometheus**: Interface de métricas brutas disponível em http://localhost:9090/, onde consultas podem ser feitas para visualizar métricas coletadas de microservices.
 
-Certifique-se de ter o Docker e o Docker Compose instalados em sua máquina. Se você ainda não os tem instalados, você pode baixá-los a partir dos seguintes links:
 
-- Docker: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
-- Docker Compose: [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/)
+####  Contribuindo
 
-Depois de instalar o Docker e o Docker Compose, siga os passos abaixo para executar a aplicação:
+Se você deseja contribuir para o projeto, por favor faça um fork do repositório e submeta um pull request. Sua ajuda é bem-vinda!
 
-1. Clone o repositório da aplicação para o seu ambiente local.
-
-2. Navegue até a pasta raiz do projeto.
-
-3. Execute o comando abaixo para construir e iniciar os contêineres da aplicação.
-
-```bash
-docker-compose up --build
-```
-4. A aplicação estará acessível localemnte em http://localhost:8181{CEP}.
-
-Basta substituir {CEP} pelo CEP desejado.

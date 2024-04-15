@@ -31,7 +31,7 @@ func NewViaCepService() *ViaCepService {
 
 func (s *ViaCepService) GetCEPData(ctx context.Context, cep string) (retVal *response.ViaCEPResponse, err error) {
 	tracer := otel.Tracer(viper.GetString("SERVICE_NAME"))
-	ctx, span := tracer.Start(ctx, "ViaCEPService.GetCEPData")
+	ctx, span := tracer.Start(ctx, "via-cep-service.get-cep-data")
 	defer span.End()
 
 	url := viper.GetString("VIACEP_HOST_API") + cep + "/json"
