@@ -7,11 +7,10 @@ exporters:
   zipkin:
     endpoint: "http://zipkin-all-in-one:9411/api/v2/spans"
     format: "proto"
-
-  # jaeger: # Corrigido o nome do exporter
-  #   endpoint: "http://jaeger-all-in-one:14250" # Corrigido o endpoint
-  #   insecure: true
-
+  otlp:
+    endpoint: "jaeger-all-in-one:4317" # gRPC port for collector
+    tls:
+      insecure: true
   prometheus:
     endpoint: "0.0.0.0:8889"
 
@@ -23,8 +22,9 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [zipkin] # Corrigido o nome do exporter
+      exporters: [zipkin, otlp]
     metrics:
       receivers: [otlp]
       processors: [batch]
       exporters: [prometheus]
+

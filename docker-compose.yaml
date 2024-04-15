@@ -73,15 +73,15 @@ services:
     networks:
       - app_net
 
-  # jaeger-all-in-one:
-  #   image: jaegertracing/all-in-one:latest
-  #   restart: always
-  #   ports:
-  #     - "16686:16686"
-  #     - "14268"
-  #     - "14250"
-  #   networks:
-  #     - app_net
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:latest
+    restart: always
+    ports:
+      - "16686:16686"
+      - "14268"
+      - "14250"
+    networks:
+      - app_net
 
   prometheus:
     container_name: prometheus
